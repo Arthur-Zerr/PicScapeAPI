@@ -9,17 +9,17 @@ namespace PicScapeAPI.Helper {
         public GenericResponse (ResponseLocalization responseLocalization) {
             this.responseLocalization = responseLocalization;
         }
-        public ResponseDto GetResponseWithData (string key, bool success, object data, string lang = "EN") {
+        public ResponseDto GetResponseWithData (string key, bool show, bool success, object data, string lang = "EN") {
             var message = responseLocalization.getRessource(key, lang);
-            var temp = new ResponseDto {Message = message, Success = success, Data = data };
+            var temp = new ResponseDto {Message = message, Show = show ,Success = success, Data = data };
 
             return temp;
         }
 
-        public ResponseDto GetResponse(string key, bool success, string lang = "EN")
+        public ResponseDto GetResponse(string key, bool show, bool success, string lang = "EN")
         {
             var message = responseLocalization.getRessource(key, lang);
-            var temp = new ResponseDto {Message = message, Success = success, Data = null };
+            var temp = new ResponseDto {Message = message,Show = show,  Success = success, Data = "null" };
 
             return temp;
         }

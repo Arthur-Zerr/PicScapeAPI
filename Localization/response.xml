@@ -1,10 +1,32 @@
 <GenericRespones>
-    <Response key="OK">
-        <translation lang="DE">Erfolgreich</translation>
-        <translation lang="EN">Successful</translation>
-    </Response>
     <Response key="LOGIN_MODEL_ERROR">
         <translation lang="DE">Bitte geben sie ein Nutzername und Passwort an!</translation>
         <translation lang="EN">Please Enter Username and Password!</translation>
     </Response>
+    <Response key="LOGIN_LOCKEDOUT">
+        <translation lang="DE">Nutzer wurde gesperrt, Bitte melden sie sich beim Support!</translation>
+        <translation lang="EN">Account is currently blocked, please connect to Support!</translation>
+    </Response>
+    <Response key="LOGIN_ERROR">
+        <translation lang="DE">Nutzername oder Password sind Falsch!</translation>
+        <translation lang="EN">Username or Password are wrong!</translation>
+    </Response>
+    <Response key="LOGIN_SUCCESS">
+        <translation lang="DE">Eingeloggt!</translation>
+        <translation lang="EN">Logged in!</translation>
+    </Response>
+
+    <Response key="REGISTER_PASSWORD_NOT_SAME_ERROR">
+        <translation lang="DE">Password und Password Wiederholung ist nicht gleich, überprüfen sie ihre eingaben!</translation>
+        <translation lang="EN">Password and Confirm Password are not same, please check input!</translation>
+    </Response>
+    <Response key="REGISTER_ERROR">
+        <translation lang="DE">Beim registrieren ist ein Fehler aufgetreten, bitte überprüfen sie ihre eingaben!</translation>
+        <translation lang="EN">An error occurred during registration, please check your input!</translation>
+    </Response>
+    <Response key="REGISTER_SUCCESS">
+        <translation lang="DE">Registrieren erfolgreich!</translation>
+        <translation lang="EN">Successful Registration!</translation>
+    </Response>
+
 </GenericRespones>
