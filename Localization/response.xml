@@ -1,0 +1,10 @@
+<GenericRespones>
+    <Response key="OK">
+        <translation lang="DE">Erfolgreich</translation>
+        <translation lang="EN">Successful</translation>
+    </Response>
+    <Response key="LOGIN_MODEL_ERROR">
+        <translation lang="DE">Bitte geben sie ein Nutzername und Passwort an!</translation>
+        <translation lang="EN">Please Enter Username and Password!</translation>
+    </Response>
+</GenericRespones>

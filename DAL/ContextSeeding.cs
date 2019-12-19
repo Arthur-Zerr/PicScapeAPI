@@ -15,7 +15,7 @@ namespace PicScapeAPI.DAL
 
         public async void UserSeeding()
         {
-            var user = new User{Username = "ArthurTest", UserCreated=DateTime.Now, Name="Zerr", Firstname="Arthur", Birthday=DateTime.Now};
+            var user = new User{UserName = "ArthurTest", Name="Zerr", Firstname="Arthur", Birthday=DateTime.Now};
 
             await picScapeContext.Users.AddAsync(user);
             await picScapeContext.SaveChangesAsync();

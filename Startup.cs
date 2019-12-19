@@ -13,6 +13,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using PicScapeAPI.DAL;
 using Microsoft.OpenApi.Models;
+using PicScapeAPI.DAL.Models;
+using Microsoft.AspNetCore.Identity;
+using PicScapeAPI.Helper;
+using PicScapeAPI.Localization;
 
 namespace PicScapeAPI
 {
@@ -25,18 +29,40 @@ namespace PicScapeAPI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<PicScapeContext>(opt => opt.UseSqlite("Filename=./PicScapeData.db"));
             services.AddControllers();
+
+            services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<PicScapeContext>();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+                
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                options.User.RequireUniqueEmail = false;
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo{ Title = "PicScape API", Version = "v1" });
             });
+
+            services.AddSingleton<ResponseLocalization>();
+            services.AddScoped<GenericResponse>();
+
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -48,10 +74,11 @@ namespace PicScapeAPI
                 opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Picscape API V1");
             });
 
-            //app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
