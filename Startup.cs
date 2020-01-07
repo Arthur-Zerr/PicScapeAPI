@@ -17,6 +17,9 @@ using PicScapeAPI.DAL.Models;
 using Microsoft.AspNetCore.Identity;
 using PicScapeAPI.Helper;
 using PicScapeAPI.Localization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace PicScapeAPI
 {
@@ -53,6 +56,21 @@ namespace PicScapeAPI
                 options.User.RequireUniqueEmail = false;
             });
 
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options => {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo{ Title = "PicScape API", Version = "v1" });
@@ -60,6 +78,7 @@ namespace PicScapeAPI
 
             services.AddSingleton<ResponseLocalization>();
             services.AddScoped<GenericResponse>();
+            services.AddScoped<PicScapeRepository>();
 
         }
 

@@ -1,4 +1,5 @@
 <GenericRespones>
+    <!-- AuthController Login -->
     <Response key="LOGIN_MODEL_ERROR">
         <translation lang="DE">Bitte geben sie ein Nutzername und Passwort an!</translation>
         <translation lang="EN">Please Enter Username and Password!</translation>
@@ -16,6 +17,7 @@
         <translation lang="EN">Logged in!</translation>
     </Response>
 
+    <!-- AuthController Register -->
     <Response key="REGISTER_PASSWORD_NOT_SAME_ERROR">
         <translation lang="DE">Password und Password Wiederholung ist nicht gleich, überprüfen sie ihre eingaben!</translation>
         <translation lang="EN">Password and Confirm Password are not same, please check input!</translation>
@@ -29,4 +31,19 @@
         <translation lang="EN">Successful Registration!</translation>
     </Response>
 
+    <!-- UserController GetUser -->
+    <Response key="USER_NOT_FOUND_ERROR">
+        <translation lang="DE">Nutzer wurde nicht gefunden</translation>
+        <translation lang="EN">User not found!</translation>
+    </Response>
+    <Response key="USER_SUCCESS">
+        <translation lang="DE">Nutzer wurde gefunden!</translation>
+        <translation lang="EN">User found!</translation>
+    </Response>
+
+    <!-- App Testing-->
+        <Response key="ISONLINE">
+        <translation lang="DE">API ist Online!</translation>
+        <translation lang="EN">API is Online</translation>
+    </Response>
 </GenericRespones>
