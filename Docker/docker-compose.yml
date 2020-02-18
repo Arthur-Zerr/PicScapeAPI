@@ -1,0 +1,10 @@
+version: '2'
+services: 
+    picscapedb:
+        image: 'picscape_base'
+        ports: 
+        - "1432:1433"
+        environment: 
+        - ACCEPT_EULA=Y
+        - SA_PASSWORD=Start123!
+        - MSSQL_SA_PASSWORD=Start123!

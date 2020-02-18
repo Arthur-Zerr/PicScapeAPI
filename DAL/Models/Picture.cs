@@ -10,6 +10,8 @@ namespace PicScapeAPI.DAL.Models
 
         public string Url { get; set; }
         public string Title { get; set; }
-        public DateTime UploadDate { get; set; }    
+        public DateTime UploadDate { get; set; }
+        public byte[] Img{ get; set; }
+        public string ImgType { get; set; } 
     }
 }

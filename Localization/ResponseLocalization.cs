@@ -9,7 +9,6 @@ namespace PicScapeAPI.Localization
         {
             if(genericResponseDocument == null)
                 genericResponseDocument = loadDocument();
-            
         }
 
         public XmlDocument loadDocument()

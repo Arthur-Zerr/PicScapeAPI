@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,14 +34,16 @@ namespace PicScapeAPI
         public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDbContext<PicScapeContext>(opt => opt.UseSqlite("Filename=./PicScapeData.db"));
+        {   
+            //TODO: Waiting for Docker Container, Delete later
+            Thread.Sleep(5000);
+            services.AddDbContext<PicScapeContext>(options => 
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), opt => opt.EnableRetryOnFailure());
+            });
             services.AddControllers();
 
-            services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<PicScapeContext>();
-
-            services.Configure<IdentityOptions>(options =>
+            services.AddIdentityCore<User>(options => 
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
@@ -50,11 +53,14 @@ namespace PicScapeAPI
                 options.Password.RequiredUniqueChars = 1;
                 
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.MaxFailedAccessAttempts = 5;  
                 options.Lockout.AllowedForNewUsers = true;
 
                 options.User.RequireUniqueEmail = false;
-            });
+            })
+            .AddSignInManager<SignInManager<User>>()
+            .AddUserManager<UserManager<User>>()
+            .AddEntityFrameworkStores<PicScapeContext>();
 
             services.AddAuthentication(x =>
             {
@@ -74,19 +80,51 @@ namespace PicScapeAPI
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo{ Title = "PicScape API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+                        },
+                        new List<string>()
+                    }
+                });
             });
 
             services.AddSingleton<ResponseLocalization>();
+            services.AddScoped<UserActivityLogger>();
             services.AddScoped<GenericResponse>();
             services.AddScoped<PicScapeRepository>();
-
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, PicScapeContext picScapeContext)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                if (picScapeContext.Database.CanConnect())
+                {
+                    picScapeContext.Database.Migrate();
+                } 
+                else
+                {
+                    picScapeContext.Database.Migrate();
+                }
             }
             app.UseSwagger();
             app.UseSwaggerUI(opt => {

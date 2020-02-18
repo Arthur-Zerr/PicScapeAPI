@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PicScapeAPI.Migrations
 {
-    public partial class AddAuthCore : Migration
+    public partial class SqlServer : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -43,6 +43,8 @@ namespace PicScapeAPI.Migrations
                     Discriminator = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     Firstname = table.Column<string>(nullable: true),
+                    City = table.Column<string>(nullable: true),
+                    Country = table.Column<string>(nullable: true),
                     Birthday = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
@@ -55,7 +57,7 @@ namespace PicScapeAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -76,7 +78,7 @@ namespace PicScapeAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -161,17 +163,60 @@ namespace PicScapeAPI.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(nullable: true),
                     Url = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
-                    UploadDate = table.Column<DateTime>(nullable: false)
+                    UploadDate = table.Column<DateTime>(nullable: false),
+                    Img = table.Column<byte[]>(nullable: true),
+                    ImgType = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pictures", x => x.ID);
                     table.ForeignKey(
                         name: "FK_Pictures_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserActivitys",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(nullable: true),
+                    LoggedIn = table.Column<DateTime>(nullable: true),
+                    LoggedOut = table.Column<DateTime>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserActivitys", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserActivitys_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserRegistrationActivitys",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(nullable: true),
+                    RegistrationTime = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRegistrationActivitys", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserRegistrationActivitys_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -187,7 +232,8 @@ namespace PicScapeAPI.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -213,11 +259,22 @@ namespace PicScapeAPI.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Pictures_UserId",
                 table: "Pictures",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserActivitys_UserId",
+                table: "UserActivitys",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRegistrationActivitys_UserId",
+                table: "UserRegistrationActivitys",
                 column: "UserId");
         }
 
@@ -240,6 +297,12 @@ namespace PicScapeAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Pictures");
+
+            migrationBuilder.DropTable(
+                name: "UserActivitys");
+
+            migrationBuilder.DropTable(
+                name: "UserRegistrationActivitys");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

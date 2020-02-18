@@ -31,6 +31,16 @@
         <translation lang="EN">Successful Registration!</translation>
     </Response>
 
+    <!-- AuthController Register -->
+    <Response key="LOGOUT_ERROR">
+        <translation lang="DE">Fehler beim auslogen!</translation>
+        <translation lang="EN">Logout Failed!</translation>
+    </Response>
+        <Response key="LOGOUT_SUCCESS">
+        <translation lang="DE">Auslogener folgreich!</translation>
+        <translation lang="EN">Successful Logout!</translation>
+    </Response>
+    
     <!-- UserController GetUser -->
     <Response key="USER_NOT_FOUND_ERROR">
         <translation lang="DE">Nutzer wurde nicht gefunden</translation>

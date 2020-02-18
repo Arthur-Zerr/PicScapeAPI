@@ -24,11 +24,13 @@ namespace PicScapeAPI.Controllers
         private readonly GenericResponse genericResponse;
         private readonly PicScapeRepository picScapeRepository;
         private readonly IConfiguration config;
+        private readonly UserActivityLogger userActivityLogger;
 
         public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, GenericResponse genericResponse, PicScapeRepository picScapeRepository,
-                                IConfiguration config)
+                                IConfiguration config, UserActivityLogger userActivityLogger)
         {
             this.config = config;
+            this.userActivityLogger = userActivityLogger;
             this.picScapeRepository = picScapeRepository;
             this.genericResponse = genericResponse;
             this.userManager = userManager;
@@ -47,29 +49,13 @@ namespace PicScapeAPI.Controllers
             if (result.Succeeded)
             {
                 var user = await userManager.FindByNameAsync(userForLoginDto.Username);
+                //Debug 
+                Console.WriteLine($"{user.UserName} logged in on {DateTime.Now.ToLongTimeString()}");
 
-                var claims = new[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName)
-                };
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.config.GetSection("AppSettings:Token").Value));
+                await userActivityLogger.LogLogin(user.Id);
+                var token = generateToken(user);
 
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(claims),
-                    Expires = DateTime.Now.AddDays(1),
-                    SigningCredentials = creds
-                };
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                var tempResult = new UserForReturnLoginDto { Token = tokenHandler.WriteToken(token)};
-
-                return Ok(genericResponse.GetResponseWithDataString("LOGIN_SUCCESS", true, true, tokenHandler.WriteToken(token)));
+                return Ok(genericResponse.GetResponseWithDataString("LOGIN_SUCCESS", true, true, token));
             }
             if (result.IsLockedOut)
                 return BadRequest(genericResponse.GetResponse("LOGIN_LOCKEDOUT", true, false));
@@ -97,12 +83,54 @@ namespace PicScapeAPI.Controllers
             var result = await userManager.CreateAsync(user, userForRegisterDto.Password);
             if (result.Succeeded)
             {
-                return Ok(genericResponse.GetResponseWithData("REGISTER_SUCCESS", true, true, "TestData"));
-            }
+                await userActivityLogger.LogRegistration(user.Id);
+                var token = generateToken(user);
 
+                return Ok(genericResponse.GetResponseWithDataString("REGISTER_SUCCESS", true, true, token));
+            }
 
             return BadRequest(genericResponse.GetResponseWithData("REGISTER_ERROR", true, false, result.Errors.ToString()));
         }
-        //TODO Add Logout method to Track Activity
+
+        [HttpPost]
+        [Route("Logout")]
+        public async Task<IActionResult> Logout([FromBody] UserForLogoutDto userForLogoutDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(genericResponse.GetResponse("", false, false));
+
+            var user = await userManager.FindByIdAsync(userForLogoutDto.UserId);
+
+            if(user.UserName == userForLogoutDto.Username)
+            {
+                await userActivityLogger.LogLogout(user.Id);
+                return Ok(genericResponse.GetResponse("LOGOUT_SUCCESS",true, true)); 
+            }
+            return BadRequest(genericResponse.GetResponse("LOGOUT_ERROR",true, true));
+        }
+
+        private string generateToken(User user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName)
+            };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.config.GetSection("AppSettings:Token").Value));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = creds
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
     }
 }

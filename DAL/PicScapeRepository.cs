@@ -13,7 +13,6 @@ namespace PicScapeAPI.DAL
             this.picscapeContext = picscapeContext;
         }
 
-
         public async Task<string> GetUserid(string username)
         {
             string result = "";

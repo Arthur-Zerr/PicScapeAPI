@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PicScapeAPI.DAL.Models;
+using PicScapeAPI.Extensions;
 using PicScapeAPI.Helper;
 
 namespace PicScapeAPI.Controllers
@@ -30,15 +31,16 @@ namespace PicScapeAPI.Controllers
             return Ok(genericResponse.GetResponse("ISONLINE", true, true));
         }
 
-        [HttpGet("{name}", Name="UserData")]
-        public async Task<IActionResult> UserData([FromQuery]string name)
+        [HttpGet]
+        [Route("name={name}")]
+        public async Task<IActionResult> UserData(string name)
         {
             var user = await userManager.FindByNameAsync(name);
 
             if(user == null)
                 return BadRequest(genericResponse.GetResponse("USER_NOT_FOUND_ERROR", true, false));
 
-            return Ok(genericResponse.GetResponseWithData("USER_SUCCESS", false, true, user));
+            return Ok(genericResponse.GetResponseWithData("USER_SUCCESS", false, true, user.ToUserForReturnDto()));
         }
     }
 }
