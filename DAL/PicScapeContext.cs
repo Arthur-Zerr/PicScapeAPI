@@ -11,6 +11,7 @@ namespace PicScapeAPI.DAL
         {
         }
         public DbSet<Picture> Pictures { get; set; }
+        public DbSet<ProfilePicture> ProfilePictures { get; set; }
         public DbSet<UserActivity> UserActivitys { get; set; }
         public DbSet<UserRegistrationActivity> UserRegistrationActivitys { get; set; }
     }

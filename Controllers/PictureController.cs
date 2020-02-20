@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Net;
@@ -8,6 +10,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using PicScapeAPI.DAL.Models;
 using Microsoft.AspNetCore.Http;
+using System.Text;
+using PicScapeAPI.DAL;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace PicScapeAPI.Controllers
 {
@@ -17,64 +23,87 @@ namespace PicScapeAPI.Controllers
     public class PictureController : Controller
     {
         private readonly UserManager<User> userManager;
+        private readonly PicScapeContext picScapeContext;
 
-        public PictureController(UserManager<User> userManager)
+        public PictureController(UserManager<User> userManager, PicScapeContext picScapeContext)
         {
+            this.picScapeContext = picScapeContext;
             this.userManager = userManager;
         }
 
         [HttpGet]
-        [Route("")]
-        public async Task<IActionResult> GetPicture()
+        [Route("ProfilePicture")]
+        public async Task<IActionResult> GetProfilePicture([FromQuery] string Username)
         {
-            var stream = System.IO.File.OpenRead(@"./Resources/rainbowlake.jpg");
-            var response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Content = new StreamContent(stream);
-
-            response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-            response.Content.Headers.ContentLength = stream.Length;
-
-            var returnFile = stream;
-
-            return File(returnFile, "image/jpeg");
-        }
-
-        [HttpGet]
-        [Route("UserPicture")]
-        public async Task<IActionResult> GetUserPicture(string Username)
-        {
-            if (!ModelState.IsValid)
+            if(!ModelState.IsValid)
                 return BadRequest();
 
             var user = await userManager.FindByNameAsync(Username);
             if(user == null)
-                return NotFound();
-
-            FileStream returnResult = System.IO.File.OpenRead(@"./Resources/rainbowlake.jpg");
-            try
-            {
-                returnResult = System.IO.File.OpenRead(@"./Resources/" + Username + ".jpg");
-            }
-            catch (System.Exception)
-            {
-            }
-
+                return BadRequest();
+            
+            var returnPicture = await picScapeContext.ProfilePictures.Where(x => x.UserID == user.Id && x.isCurrentPicture == true).FirstOrDefaultAsync();
+            
+            var pictureStream = new MemoryStream(returnPicture.Img);
             var response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Content = new StreamContent(returnResult);
+            response.Content = new StreamContent(pictureStream);
 
-            response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-            response.Content.Headers.ContentLength = returnResult.Length;
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue(returnPicture.ImgType);
+            response.Content.Headers.ContentLength = pictureStream.Length;
 
-            var returnFile = returnResult;
-
-            return File(returnFile, "image/jpeg");
+            return File(pictureStream, "image/jpeg");
         }
 
         [HttpPost]
-        [Route("")]
-        public async Task<IActionResult> UploadPicture([FromForm]IFormFile file)
+        [Route("ProfilePicture")]
+        public async Task<IActionResult> UploadProfilePicture([FromForm] IFormFile file)
         {
-            return BadRequest();
+            if(!ModelState.IsValid)
+                return BadRequest();
+            
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = await userManager.FindByIdAsync(userId);
+            if(user == null)
+                return BadRequest();
+
+            var profilePictureList = await picScapeContext.ProfilePictures.Where(x => x.UserID == user.Id).ToListAsync();
+            var profilePicture = profilePictureList.LastOrDefault();
+            
+            if(profilePicture != null)
+                profilePicture.isCurrentPicture = false;
+
+            var temp = new ProfilePicture();
+
+            if(file.Length > 0 )
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    temp.Img = ToByte(stream);
+                    temp.UserID = user.Id;
+                    temp.ImgType = file.ContentType;
+                    temp.UploadDate = DateTime.Now;
+                    temp.isCurrentPicture = true;
+                }
+            }
+            await picScapeContext.ProfilePictures.AddAsync(temp);
+            await picScapeContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        private byte[] ToByte(Stream input)
+        {
+            byte[] buffer = new byte[16 * 1024];
+            using (MemoryStream ms = new MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+                input.Position = 0;
+                return ms.ToArray();
+            }
         }
     }
 }

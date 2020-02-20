@@ -43,7 +43,11 @@ namespace PicScapeAPI
             });
             services.AddControllers();
 
-            services.AddIdentityCore<User>(options => 
+
+            services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<PicScapeContext>();
+
+            services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
@@ -53,14 +57,11 @@ namespace PicScapeAPI
                 options.Password.RequiredUniqueChars = 1;
                 
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;  
+                options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
 
                 options.User.RequireUniqueEmail = false;
-            })
-            .AddSignInManager<SignInManager<User>>()
-            .AddUserManager<UserManager<User>>()
-            .AddEntityFrameworkStores<PicScapeContext>();
+            });
 
             services.AddAuthentication(x =>
             {

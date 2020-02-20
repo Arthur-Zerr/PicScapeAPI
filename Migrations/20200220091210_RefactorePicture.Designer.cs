@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PicScapeAPI.DAL;
 
 namespace PicScapeAPI.Migrations
 {
     [DbContext(typeof(PicScapeContext))]
-    partial class PicScapeContextModelSnapshot : ModelSnapshot
+    [Migration("20200220091210_RefactorePicture")]
+    partial class RefactorePicture
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -250,38 +252,6 @@ namespace PicScapeAPI.Migrations
                     b.ToTable("Pictures");
                 });
 
-            modelBuilder.Entity("PicScapeAPI.DAL.Models.ProfilePicture", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<byte[]>("Img")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("ImgType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UploadDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserID")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("isCurrentPicture")
-                        .HasColumnType("bit");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("ProfilePictures");
-                });
-
             modelBuilder.Entity("PicScapeAPI.DAL.Models.UserActivity", b =>
                 {
                     b.Property<int>("Id")
@@ -402,13 +372,6 @@ namespace PicScapeAPI.Migrations
                 {
                     b.HasOne("PicScapeAPI.DAL.Models.User", "User")
                         .WithMany("Pictures")
-                        .HasForeignKey("UserID");
-                });
-
-            modelBuilder.Entity("PicScapeAPI.DAL.Models.ProfilePicture", b =>
-                {
-                    b.HasOne("PicScapeAPI.DAL.Models.User", "User")
-                        .WithMany()
                         .HasForeignKey("UserID");
                 });
 
