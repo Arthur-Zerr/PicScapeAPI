@@ -31,7 +31,7 @@
         <translation lang="EN">Successful Registration!</translation>
     </Response>
 
-    <!-- AuthController Register -->
+    <!-- AuthController Logout -->
     <Response key="LOGOUT_ERROR">
         <translation lang="DE">Fehler beim auslogen!</translation>
         <translation lang="EN">Logout Failed!</translation>
@@ -52,7 +52,17 @@
     </Response>
 
     <!-- App Testing-->
-        <Response key="ISONLINE">
+    <Response key="PICTURE_UPLOAD_SUCCESS">
+        <translation lang="DE">Bild wurde Erflogreich Hochgeladen!</translation>
+        <translation lang="EN">Picutre uploaded succesfully!</translation>
+    </Response>
+    <Response key="PICTURE_UPLOAD_ERROR">
+        <translation lang="DE">Es gab ein Fehler beim hochladen des Bildes!</translation>
+        <translation lang="EN">Failed to upload the Picture!</translation>
+    </Response>
+    
+    <!-- App Testing-->
+    <Response key="ISONLINE">
         <translation lang="DE">API ist Online!</translation>
         <translation lang="EN">API is Online</translation>
     </Response>
