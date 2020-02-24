@@ -22,8 +22,9 @@ namespace PicScapeAPI
                 {
                     webBuilder.UseIIS();
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls("http://192.168.178.96:5000", "https://192.168.178.96:5001");
-                    // webBuilder.UseUrls("http://localhost:5000", "https://localhost:5001");
+                    // webBuilder.UseUrls("http://192.168.178.96:5000", "https://192.168.178.96:5001");
+                    webBuilder.UseUrls("http://localhost:5000", "https://localhost:5001");
+                    // webBuilder.UseUrls("http://192.168.64.106:5000", "https://192.168.64.106:5001");
                 });
     }
 }
