@@ -22,6 +22,24 @@ namespace PicScapeAPI.DAL
 
             return result ?? "";
         }
+
+        public async Task<bool> UpdateUserData(User user)
+        {
+            var tempuser = await picscapeContext.Users.Where(x => x.Id == user.Id).FirstOrDefaultAsync();
+            if(tempuser == null)
+                return false;
+
+            tempuser.Name = user.Name;
+            tempuser.Firstname = user.Firstname;
+            tempuser.City = user.City;
+            tempuser.Country = user.Country;
+            tempuser.Birthday = user.Birthday;
+
+            if(await picscapeContext.SaveChangesAsync() >= 0)
+                return true;
+
+            return false;
+        }
         #endregion
 
         #region Picture
@@ -37,7 +55,8 @@ namespace PicScapeAPI.DAL
         public async Task<int> SaveProfilePicture(ProfilePicture picture)
         {
             var lastPicture = await GetCurrentProfilePictureAsync(picture.UserID);
-            lastPicture.isCurrentPicture = false;
+            if(lastPicture != null)
+                lastPicture.isCurrentPicture = false;
 
             await picscapeContext.ProfilePictures.AddAsync(picture);
             return await picscapeContext.SaveChangesAsync();
