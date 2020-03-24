@@ -108,6 +108,7 @@ namespace PicScapeAPI
             });
 
             services.AddSingleton<ResponseLocalization>();
+            services.AddSingleton<UploadHelper>();
             services.AddScoped<UserActivityLogger>();
             services.AddScoped<GenericResponse>();
             services.AddScoped<PicScapeRepository>();

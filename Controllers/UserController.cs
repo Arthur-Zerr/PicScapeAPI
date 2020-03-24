@@ -38,8 +38,8 @@ namespace PicScapeAPI.Controllers
         }
 
         [HttpGet]
-        [Route("name={name}")]
-        public async Task<IActionResult> UserData(string name)
+        [Route("UserDataByName={name}")]
+        public async Task<IActionResult> UserDataByName(string name)
         {
             var user = await userManager.FindByNameAsync(name);
 
@@ -47,6 +47,26 @@ namespace PicScapeAPI.Controllers
                 return BadRequest(genericResponse.GetResponse("USER_NOT_FOUND_ERROR", true, false));
 
             return Ok(genericResponse.GetResponseWithData("USER_SUCCESS", false, true, user.ToUserForReturnDto()));
+        }
+
+        [HttpGet]
+        [Route("UserDataById={id}")]
+        public async Task<IActionResult> UserDataById(string id)
+        {
+            var user = await userManager.FindByIdAsync(id);
+
+            if(user == null)
+                return BadRequest(genericResponse.GetResponse("USER_NOT_FOUND_ERROR", true, false));
+
+            return Ok(genericResponse.GetResponseWithData("USER_SUCCESS", false, true, user.ToUserForReturnDto()));
+        }
+        
+
+        [HttpGet]
+        [Route("Username={Username}")]
+        public async Task<IActionResult> FindUserbyUsername(string Username)
+        {
+            return BadRequest();
         }
         
         [HttpPost]
@@ -62,10 +82,7 @@ namespace PicScapeAPI.Controllers
             if (user == null)
                 return BadRequest(genericResponse.GetResponse("", true, false));
 
-            var Birthdate = new DateTime();
-            if(DateTime.TryParse(userForUpdateDto.Birthday, out Birthdate) == false)
-                return BadRequest();
-
+  
 
             var temp = new User{ 
                 Id = userId, 
@@ -73,7 +90,7 @@ namespace PicScapeAPI.Controllers
                 Firstname = userForUpdateDto.Firstname, 
                 City = userForUpdateDto.City, 
                 Country = userForUpdateDto.Country,
-                Birthday = Birthdate
+                Birthday = userForUpdateDto.Birthday.ToDateTime()
             };
 
             if(await picScapeRepository.UpdateUserData(temp) == false)

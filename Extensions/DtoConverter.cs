@@ -19,6 +19,29 @@ namespace PicScapeAPI.Extensions
             return temp;
         }
 
+        public static PictureDto ToPictureDto(this Picture picture)
+        {
+            var temp = new PictureDto
+            {
+                id = picture.ID,
+                Img = picture.Img,
+                UserID = picture.UserID
+            };
 
+            return temp;
+        }
+
+        public static PictureDataDto ToPictureDataDto(this Picture picture)
+        {
+            var temp = new PictureDataDto
+            {
+                Id = picture.ID,
+                Title = picture.Title,
+                UserID = picture.UserID,
+                UploadDate = picture.UploadDate.ToSwiftString()
+            };
+
+            return temp;
+        }
     }
 }
